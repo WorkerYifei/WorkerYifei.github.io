@@ -1,1 +1,758 @@
-hello
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>从Java8 Stream 到 Reactive</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="e0fa820d-9eee-4b47-9442-5f92cc18da3d" class="page sans"><header><div class="page-header-icon undefined"><span class="icon">☕</span></div><h1 class="page-title">从Java8 Stream 到 Reactive</h1></header><div class="page-body"><figure id="825f4239-10a3-45ec-b2e8-72f5ba179001"><div class="source"><a></a></div></figure><figure id="ac43cce5-9889-4abd-9adc-7269c158a2d5"><a href="https://xwjie.github.io/webflux/webflux-study-path.html#lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E7%9A%84this" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">webflux学习路径 | 晓风轻技术小站</div><div class="bookmark-description">springboot2 已经发布，其中最亮眼的非webflux响应式编程莫属了！响应式的weblfux可以支持高吞吐量，意味着使用相同的资源可以处理更加多的请求，毫无疑问将会成为未来技术的趋势，是必学的技术！很多人都看过相关的入门教程，但看完之后总觉得很迷糊，知其然不知道其所以然，包括我本人也有相同的疑惑。后面在研究和学习中发现，是我的 ...</div></div><div class="bookmark-href">https://xwjie.github.io/webflux/webflux-study-path.html#lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E7%9A%84this</div></div><img src="https://img.mukewang.com/5ad9e1f600013bfe05940321.png" class="bookmark-image"/></a></figure><h1 id="40ce7c59-2c0d-4c67-90ed-aabe5cd9fcad" class="">1.Java8中的stream</h1><h2 id="e2e5567e-7232-469b-aef5-23a0cdbf87c9" class="">stream与collection的区别</h2><ol id="3836eacd-ab4f-4721-a455-b1bfbf94defd" class="numbered-list" start="1"><li>无存储，stream并不是一个数据结构，相反，它只是通过一些管道计算操作将源给转化为元素。</li></ol><ol id="dc19296c-61d0-4931-8548-05e7ad284526" class="numbered-list" start="2"><li>天生函数式，所有的operation都不会修改源数据。</li></ol><ol id="5bc24d4a-7a8c-4477-8713-5782f63bb665" class="numbered-list" start="3"><li>stream操作分为中间操作和终止操作，前者都是具有惰性的。</li></ol><h2 id="72247d99-ae0b-45b2-870b-f7d0a582f1f1" class="">stream api操作类型</h2><p id="f7555eed-1cff-429e-9f1e-fe30dc513dc6" class="">stream的各种api可以划分为两类。</p><ul id="586714f5-6efc-4c51-a7ef-3802bb82e7cf" class="bulleted-list"><li><strong>终止操作</strong>   所有返回的类型不是stream对象，不可以继续进行链式调用的api都被称为终止操作<ol id="0abf3def-9d50-4307-b208-14dd097d14d3" class="numbered-list" start="1"><li>短路操作 <p id="5c4e4a58-626e-4207-a3c8-c37c1ce642ec" class="">短路操作就是limit/findxxx/xxxMatch这种，就是找了符合条件的就终止      </p></li></ol><ol id="a9fc2107-d0c3-4f86-ab3a-d9deb87759a5" class="numbered-list" start="2"><li>非短路操作</li></ol><p id="9fc9cd55-ef0a-4b2b-8b86-d163327e2aac" class="">  在无限流中需要调用短路操作，否则就会像炫迈一样根本停不下来</p></li></ul><ul id="0647b993-2382-46b9-8f3f-9ca391051185" class="bulleted-list"><li><strong>中间操作</strong>   返回类型为stream对象的则是中间操作，而中间操作又可以划分为两类<ol id="88bc4bf8-a599-4262-8a8b-5aba7fad51b6" class="numbered-list" start="1"><li>无状态操作   <p id="35e9a97b-048b-4a6e-8af0-61c4e4efc154" class="">只有一个入参的就是无状态操作，因为与其他元素无关，如map filter</p></li></ol><ol id="f7bfdb1a-8a49-42e8-91e6-7fcbd108953e" class="numbered-list" start="2"><li>有状态操作<p id="f2d0f4d0-7baf-46c5-880b-329b090a24db" class="">例如 distinct 与 sorted</p><p id="3718225d-fda0-4938-ab62-52bc2f15fe43" class="">
+</p></li></ol></li></ul><h2 id="78a8488d-fcbb-458b-8660-26ba044a3e8d" class="">side-effect 副作用</h2><p id="0e5e1163-cf1d-4e91-813b-2bd70ae2b945" class="">在函数式编程中，副作用不是贬义词，准确来说，应该称作“额外作用”，是相对于数学中的函数而言的，在数学函数中关注的是输入值和返回值。而在java中，除了入参和出参，函数还可能做一些别的事情，主要分为几类：</p><ol id="26aa9037-c339-4e4a-a09e-91a916341991" class="numbered-list" start="1"><li>对入参对象实例的状态（比如字段值）做出了任何改变。</li></ol><ol id="fc2f469f-e8c5-4acb-a76d-6d80028b1b3c" class="numbered-list" start="2"><li>对函数作用域范围之外的final对象的状态做出了任何改变。</li></ol><h2 id="986ca47a-8440-4583-96f0-92898ff8dfd1" class="">stream ? parallel</h2><p id="4ed9c0b9-001b-47a6-9089-83fb2c49e5d9" class="">流又分为串行流与并行流，java stream创建的流默认都是串行流，基本与普通的显示遍历相同，例如Collection.stream() 就是返回了一个并行流。如果想要并行流可以调用BaseStream.parallel()方法将普通流转换为并行流。</p><p id="45547848-5e3e-455f-abc1-d872b9710299" class="">需要注意的是，一个并行流的中间操作中如果存在有状态操作，即被处理的操作与其他元素有关联，则并行操作会在这一步停滞，所有元素都被有状态操作处理后，才会继续进行下一个操作。举个例子：</p><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="7853572f-b5c4-48d1-b8cb-0534ab784748" class="code"><code><span class="token class-name">Random</span>        random <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Random</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">AtomicInteger</span> count <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AtomicInteger</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 随机产生数据</span>
+<span class="token class-name">Stream</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> stream <span class="token operator">=</span> <span class="token class-name">Stream</span><span class="token punctuation">.</span><span class="token function">generate</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-></span> random<span class="token punctuation">.</span><span class="token function">nextInt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+                               <span class="token comment">// 产生20个 ( 无限流需要短路操作. )</span>
+                               <span class="token punctuation">.</span><span class="token function">limit</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span>
+                               <span class="token comment">// 第1个无状态操作</span>
+                               <span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span>s <span class="token operator">-></span> <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"peek: "</span> <span class="token operator">+</span> s<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                               <span class="token comment">// 有状态操作</span>
+                               <span class="token punctuation">.</span><span class="token function">sorted</span><span class="token punctuation">(</span><span class="token punctuation">(</span>i1<span class="token punctuation">,</span> i2<span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token punctuation">{</span>
+                                   <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"排序: "</span> <span class="token operator">+</span> i1 <span class="token operator">+</span> <span class="token string">", "</span> <span class="token operator">+</span> i2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                                   count<span class="token punctuation">.</span><span class="token function">addAndGet</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                                   <span class="token keyword">return</span> i1<span class="token punctuation">.</span><span class="token function">compareTo</span><span class="token punctuation">(</span>i2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                               <span class="token punctuation">}</span><span class="token punctuation">)</span>
+                               <span class="token comment">// 又一个无状态操作 </span>
+                               <span class="token punctuation">.</span><span class="token function">peek</span><span class="token punctuation">(</span>s <span class="token operator">-></span> <span class="token punctuation">{</span>
+                                   <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                                       <span class="token class-name">Thread</span><span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                                   <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> ignored<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                                   <span class="token punctuation">}</span>
+                                   <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"peek2: "</span> <span class="token operator">+</span> s<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                               <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">parallel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// 终止操作</span>
+<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>stream<span class="token punctuation">.</span><span class="token function">count</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>count<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p id="e75ad2e2-b2fa-4ef0-a8a3-3a88fd02fea8" class="">上面这段代码，所有元素在第二步排序操作完成后，才会继续在第三步并行。</p><p id="77fb6b89-82bf-4f0f-9af6-7ea42febc339" class="">
+</p><p id="d32f61aa-af95-4087-b660-dc6a4448dd54" class="">
+</p><h1 id="a52e288d-3639-493d-af0e-da666ac18b9a" class="">2.reactor</h1><p id="8757a887-eef4-4731-969e-11926b0038ed" class="">reactor 是一个独立的项目，全称是 project-reactor</p><h2 id="ac9fea30-cbd4-4a55-abf9-42532efdfb1a" class="">Flux Mono</h2><p id="0ba21925-d0e0-4e6d-be89-56bd44e73cbd" class="">flux 包含0~n 个元素，而Mono只包含0~1个元素。</p><p id="9028cbf3-dc5d-4f0f-b463-a659e8366ee1" class="">Flux和Mono都可以发出三种“数据信号”：元素值、错误信号、完成信号，错误信号和完成信号都是终止信号，完成信号用于告知下游订阅者该数据流正常结束，错误信号终止数据流的同时将错误传递给下游订阅者。</p><ol id="06901ddf-1f91-4fd2-bd08-f6bf7d9fdb83" class="numbered-list" start="1"><li>创建Flux Mono<p id="874e951f-f718-4ac9-b6a8-fb50b177c188" class="">水电费</p></li></ol><ol id="4d814ede-e125-4c11-be54-038faa2b79b5" class="numbered-list" start="2"><li>订阅Flux  Mono<style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="b0f6af6f-3bf6-4ff1-a212-818e85e78825" class="code code-wrap"><code><span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+
+<span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">T</span><span class="token punctuation">></span></span> consumer<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+
+<span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">T</span><span class="token punctuation">></span></span> consumer<span class="token punctuation">,</span>
+          <span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">Throwable</span><span class="token punctuation">></span></span> errorConsumer<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+
+<span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">T</span><span class="token punctuation">></span></span> consumer<span class="token punctuation">,</span>
+          <span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">Throwable</span><span class="token punctuation">></span></span> errorConsumer<span class="token punctuation">,</span>
+          <span class="token class-name">Runnable</span> completeConsumer<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+
+<span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">T</span><span class="token punctuation">></span></span> consumer<span class="token punctuation">,</span>
+          <span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">Throwable</span><span class="token punctuation">></span></span> errorConsumer<span class="token punctuation">,</span>
+          <span class="token class-name">Runnable</span> completeConsumer<span class="token punctuation">,</span>
+          <span class="token class-name">Consumer</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">Subscription</span><span class="token punctuation">></span></span> subscriptionConsumer<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p id="35d7ae12-aa42-4fd1-ab00-6d5f2de3a4bf" class="">
+</p><h2 id="80577ac2-1aab-4aff-94eb-110aab5f8ca9" class="">reactive 中几个关键接口</h2><h3 id="d7cd764a-4f2c-4424-9032-4a469fa82983" class="">Publisher 生产者</h3><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="31e3e3d9-911b-4284-a4ae-617ac0395d7d" class="code code-wrap"><code><span class="token keyword">interface</span> <span class="token class-name">Publisher</span><span class="token punctuation">{</span>
+
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token class-name">Subscriber</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">super</span> <span class="token class-name">T</span><span class="token punctuation">></span></span> subscriber<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span></code></pre><h3 id="2beac0b6-271f-4ffa-a816-b956917db716" class="">Subscriber  订阅者 </h3><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="4de83ff9-ab4f-49de-8a29-d86adbe5eb3b" class="code code-wrap"><code><span class="token keyword">interface</span> <span class="token class-name">Subscriber</span> <span class="token punctuation">{</span>
+
+		<span class="token comment">// 调用Publisher的subscribe方法时，传入一个Subsriber对象，Publisher负责调用此Subscriber的onSubscribe()方法，传入一个Subscription对象。</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onSubscribe</span><span class="token punctuation">(</span><span class="token class-name">Subscription</span> subscription<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		
+		<span class="token comment">// publisher发送来的数据</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onNext</span><span class="token punctuation">(</span><span class="token class-name">T</span> item<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		
+		<span class="token comment">// publisher会调用此方法发送失败的事件通知，调用后publisher不会再发送任何时间</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onError</span><span class="token punctuation">(</span><span class="token class-name">Throwable</span> throwable<span class="token punctuation">)</span><span class="token punctuation">;</span>
+		
+		<span class="token comment">// publisher会调用此方法发送成功的事件通知，调用后publisher不会再发送任何时间</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onComplete</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre><h3 id="b52a6dd3-a36f-44d3-aa0e-ce2567ab1ea7" class="">Subscription  </h3><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="5b79633c-eb52-45f6-bebf-fe8348a547af" class="code code-wrap"><code><span class="token comment">// 代表 Subsriber与Publisher之间的一对一订阅关系，用来请求数据或取消请求</span>
+<span class="token keyword">interface</span> <span class="token class-name">Subscription</span><span class="token punctuation">{</span>
+
+		<span class="token comment">// 此方法由 Subsriber负责调用。</span>
+		<span class="token comment">// publisher不会发出任何消息直到此方法被调用；此方法可以被调用多次。</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">request</span><span class="token punctuation">(</span><span class="token keyword">long</span> n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		<span class="token comment">// 通知publisher不要再发送消息了，调用此方法后，publisher可能继续发送消息，因为之前请求的消息还没发送完</span>
+		<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">cancel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre><h3 id="f446146f-beea-4b49-9080-af2a4c1fc319" class="">Processor</h3><p id="e64d1fae-40cd-4c03-9b16-3ae20a122c69" class="">extends Subscriber Publisher</p><p id="9d1c36f1-3e33-497a-ad0c-4412779bcbd9" class="">
+</p><h3 id="af455b56-5c6c-4ffe-acf1-9d4b5bda84c9" class="">四者之间的关联</h3><p id="d5bcb652-ba66-47c7-b512-865c6ae16b48" class="">publisher负责生产item，生产的item由1~n 个subscriber订阅并消费，subscription负责管理两者之间的订阅关系。</p><p id="baf75b4c-d1ae-456b-a560-f41eb061fef5" class="">
+</p><p id="d4dce5d0-40f6-4b7c-a5e9-1df3fad43a08" class="">subscriber </p><ol id="e596b1e7-e7c6-4466-b178-72f876b5bc98" class="numbered-list" start="1"><li>负责调用subscription的request方法，请求数据</li></ol><p id="37d6c5af-8ef2-44a2-9b5d-c709f8babea8" class="">
+</p><p id="92bdd629-2b4a-421b-8834-54a1acf99f6d" class="">
+</p><p id="8d11a85b-92d1-4002-afa6-1d0c66272462" class="">
+</p><p id="3d6ad3e1-bac4-4b79-83b6-106ed09f0cda" class="">
+</p><h2 id="8b1f4298-f8d6-4e01-9138-53da16ce3089" class="">api</h2><figure id="3ce29970-1208-4e65-ba7e-c2f277811930"><a href="https://projectreactor.io/docs/core/release/reference/index.html#which.create" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Reactor 3 Reference Guide</div><div class="bookmark-description">Switching from an imperative and synchronous programming paradigm to a reactive and asynchronous one can sometimes be daunting. One of the steepest steps in the learning curve is how to analyze and debug when something goes wrong. In the imperative world, debugging is usually pretty straightforward.</div></div><div class="bookmark-href"><img src="https://projectreactor.io/favicon.ico" class="icon bookmark-icon"/>https://projectreactor.io/docs/core/release/reference/index.html#which.create</div></div></a></figure><p id="1f0cd41c-f19c-4c63-8ebf-6557633ffe2c" class="">
+</p><p id="9b34f12a-a521-45cf-9f20-fd522b339604" class="">
+</p><p id="b6bb9fa5-ac7b-42da-a982-7d44ef81bfa6" class="">Mono</p><p id="0675d302-c83a-4d01-804c-9999cb23bac3" class="">defer()</p><p id="7e9262e0-1c61-46bf-81ea-73f163e83c0e" class="">
+</p><p id="a49dae16-39b0-4cb3-880d-c5c2652d78dc" class="">
+</p><h3 id="a852117f-b9bc-4209-908d-4847ecc731dc" class="">从传统微服务到reactive system</h3><figure id="3f81c905-30f8-4257-b2ec-631f1b90db1d"><a href="https://www.baeldung.com/java-reactive-systems" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Reactive Systems in Java | Baeldung</div><div class="bookmark-description">In this tutorial, we&#x27;ll understand the basics of creating reactive systems in Java using Spring and other tools and frameworks. In the process, we&#x27;ll discuss how reactive programming is just a driver towards creating a reactive system. This will help us understand the rationale for creating reactive systems and different specifications, libraries, and standards it has inspired along the way.</div></div><div class="bookmark-href"><img src="https://www.baeldung.com/wp-content/themes/baeldung/favicon/favicon.ico" class="icon bookmark-icon"/>https://www.baeldung.com/java-reactive-systems</div></div><img src="https://www.baeldung.com/wp-content/uploads/2017/08/On-Baeldung-1.jpg" class="bookmark-image"/></a></figure><p id="08e8e7cc-ffcd-4ea1-aa42-409be440d2d7" class="">
+</p><p id="359f0020-eb27-4316-927a-e9fed51384e8" class="">
+</p><p id="9458abc0-e60c-4121-9177-d15687126a0d" class="">
+</p><p id="a2179de4-d0ab-4e08-80bc-ec8d8189ace5" class="">Adding both spring-boot-starter-web and spring-boot-starter-webflux modules in your application results in Spring Boot auto-configuring Spring MVC, not WebFlux. This behavior has been chosen because many Spring developers add spring-boot-starter-webflux to their Spring MVC application to use the reactive WebClient.</p><p id="4fed5a03-184c-4022-80b0-8ea1cae68051" class="">
+</p><p id="e5b4ab6e-0ff6-4ee5-acf8-fd8ff5594fc0" class="">
+</p><p id="9269d9a8-d722-41d4-81f9-7674797f11e5" class="">
+</p><h3 id="55016ae8-3742-4a89-b286-e5d933a51351" class="">Error Handling</h3><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="d064b1fc-4024-41f3-ad5d-17643d3f788c" class="code code-wrap"><code>Flux.just<span class="token punctuation">(</span><span class="token string">"user-1"</span><span class="token punctuation">)</span>                                                // <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    .flatMap<span class="token punctuation">(</span>user -<span class="token operator">></span>                                               // <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+        recommendedBooks<span class="token punctuation">(</span>user<span class="token punctuation">)</span>                                     // <span class="token punctuation">(</span><span class="token number">2.1</span><span class="token punctuation">)</span>
+        .retryBackoff<span class="token punctuation">(</span><span class="token number">5</span>, Duration.ofMillis<span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">))</span>                   // <span class="token punctuation">(</span><span class="token number">2.2</span><span class="token punctuation">)</span>
+        .timeout<span class="token punctuation">(</span>Duration.ofSeconds<span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">))</span>                            // <span class="token punctuation">(</span><span class="token number">2.3</span><span class="token punctuation">)</span>
+        .onErrorResume<span class="token punctuation">(</span>e -<span class="token operator">></span> Flux.just<span class="token punctuation">(</span><span class="token string">"The Martian"</span><span class="token punctuation">))</span><span class="token punctuation">)</span>             // <span class="token punctuation">(</span><span class="token number">2.4</span><span class="token punctuation">)</span>
+    .subscribe<span class="token punctuation">(</span>                                                    // <span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span>
+        b -<span class="token operator">></span> log.info<span class="token punctuation">(</span><span class="token string">"onNext: {}"</span>, b<span class="token punctuation">)</span>,
+        e -<span class="token operator">></span> log.warn<span class="token punctuation">(</span><span class="token string">"onError: {}"</span>, e.getMessage<span class="token punctuation">(</span><span class="token punctuation">))</span>,
+        <span class="token punctuation">(</span><span class="token punctuation">)</span> -<span class="token operator">></span> log.info<span class="token punctuation">(</span><span class="token string">"onComplete"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre><p id="aaf4ee11-1ab3-484c-86dc-2c4154f0e4a2" class="">
+</p><p id="5ab08415-61cd-463c-aa83-c827179325c2" class="">
+</p><p id="ba81d965-0b15-4730-905f-462f933564f7" class="">
+</p><hr id="12230320-8672-4bfb-931a-09ce52a35e62"/><h2 id="8dbb527d-eb81-4223-b18e-efa788944559" class="">Reactor 进阶</h2><p id="fdecf027-d922-4607-a4a7-7112f079a9ad" class="">探讨react stream的生命周期，多线程，以及内部是如何优化的。</p><p id="38cab436-9cc2-47cf-9e10-a70f3cafb8a3" class="">
+</p><p id="6d77e26f-fe55-48d4-b0a6-f16e11f258e4" class="">
+</p><h1 id="27f454da-567a-4573-b9a7-c2e8818f76ca" class="">1.stream生命周期</h1><ol id="2f7c7cd4-3d78-4ca4-b9ef-e3af7d276500" class="numbered-list" start="1"><li>Assembly-time（装配阶段） <p id="e9822271-d266-47ef-b53b-ec5b16b8425d" class="">In reactive libraries, that process of building the execution flow is called assembling.</p></li></ol><ol id="e76768a2-04bf-4b51-9b3c-e32980fd7125" class="numbered-list" start="2"><li>Subscription-time<p id="ab9fb534-1eae-4250-814e-851e96a52c0b" class="">Subscription happens when we subscribe to a given Publisher. </p></li></ol><ol id="31f3ede5-f134-4452-8cc5-e0737dd5c08b" class="numbered-list" start="3"><li>runtime</li></ol><p id="1791e896-e4c7-4845-ae84-804980b9f35b" class="">
+</p><p id="199b7f49-d0ca-4f80-a00f-29438edd4dde" class="">
+</p><figure id="af04190e-ea84-4ec1-b51a-8d8b6add762b" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled.png"><img style="width:1164px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled.png"/></a></figure><p id="c291d302-1778-40a3-b4cc-050edfcc407f" class="">
+</p><h3 id="492a43f9-407f-48ac-8ba3-5c74bafcc224" class="">2.Reacotr 并发线程模型</h3><p id="1bf9f6db-ce8e-43ec-8b4d-6c1b045b40e5" class="">reacotr 提供了四类方法，允许我们的任务在不同worker之间切换。</p><ul id="a598db6b-2538-4f92-a0fa-891fa4653272" class="bulleted-list"><li><strong>publishOn 方法</strong><p id="0c966d76-8c80-40c2-940c-46a2726f69fa" class="">允许runtime中的某个阶段在指定的worker中执行。</p><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="355ec810-b22f-4bb2-ae97-eb795bd87c32" class="code code-wrap"><code><span class="token keyword">public</span> <span class="token keyword">final</span> <span class="token class-name">Flux</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> <span class="token function">publishOn</span><span class="token punctuation">(</span><span class="token class-name">Scheduler</span> scheduler<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token keyword">return</span> <span class="token function">publishOn</span><span class="token punctuation">(</span>scheduler<span class="token punctuation">,</span> <span class="token class-name">Queues</span><span class="token punctuation">.</span>SMALL_BUFFER_SIZE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre><p id="96f98576-a6d5-4b45-9363-8049a5d25797" class="">看下面这个例子：</p><style>@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css')</style><pre id="2d7e901a-4e2a-41c5-b8d6-4bfedfea69bd" class="code"><code><span class="token class-name">Scheduler</span> scheduler <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>        <span class="token comment">// (1)</span>
+
+<span class="token class-name">Flux</span><span class="token punctuation">.</span><span class="token function">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">100</span><span class="token punctuation">)</span>                <span class="token comment">// (2) ¯|</span>
+    <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token operator">::</span><span class="token function">valueOf</span><span class="token punctuation">)</span>         <span class="token comment">// (3)  |> Thread Main</span>
+    <span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>s <span class="token operator">-></span> s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">)</span>  <span class="token comment">// (4) _|</span>
+
+    <span class="token punctuation">.</span><span class="token function">publishOn</span><span class="token punctuation">(</span>scheduler<span class="token punctuation">)</span>         <span class="token comment">// (5)</span>
+
+    <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token operator">::</span><span class="token function">calculateHash</span><span class="token punctuation">)</span>     <span class="token comment">// (6) ¯|</span>
+    <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token operator">::</span><span class="token function">doBusinessLogic</span><span class="token punctuation">)</span>   <span class="token comment">// (7)  |> Scheduler Thread</span>
+    <span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span><span class="token punctuation">)</span>                  <span class="token comment">// (8) _|</span></code></pre><p id="88b75f8e-8834-4875-8e7c-3289bc191467" class="">总结下在使用publisheOn方法时的线程执行示意图：</p><figure id="5c82ac05-f83d-4ea9-8de6-c743c101d6b7" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%201.png"><img style="width:1176px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%201.png"/></a></figure><p id="677eba44-eb06-4ba0-91ff-e1c993790252" class="">publisheOn的底层实现中，其维护了一个队列，原worker向这个队列中emit item，然后另一个worker才得以异步消费。</p><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="282f03b7-16a4-4ac8-bab9-c0b32b2ffc01"><div style="font-size:1.5em"><span class="icon">👉</span></div><div style="width:100%">这里需要特别指出：在上述模型中，所有元素都是串行被消费的，没有任何并发，并且是同一个worker在消费这个队列，所以顺序是会被保证的。</div></figure><p id="4fd84998-c9e2-4858-8a7e-f35706494c82" class="">
+</p></li></ul><ul id="c317bbab-a05d-4b75-9d83-95188f498c92" class="bulleted-list"><li><strong>parallel with</strong> <code>publishOn</code>
+首选，明确一点，此处的并行和jdk中的stream.parallel()不同，并不是指多个item同时被不同的线程处理；而是指一个reactive stream的<strong>多个stage可以并行。</strong>首先，看一幅图：<figure id="489f5952-611f-4ae9-af3d-3ae225e601dd" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%202.png"><img style="width:1228px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%202.png"/></a></figure><p id="8623b92e-e895-489d-8360-8c46d4937dc7" class="">在完全同步的情况下，stream中的多个阶段是完全串行化处理的，每个item元素必须被所有stage消费后，才会请求下个元素。再看一张图，publishOn方法是如何开启并行的：</p><figure id="d8428d3b-46d4-48d4-86d5-1ff1adee57bd" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%203.png"><img style="width:1134px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%203.png"/></a></figure><p id="7cb03c4d-8910-4303-a35c-fdd6b7a06ad1" class="">上图中的虚线表示通过调用publishOn方法开启了并行，每个item到达虚线处后，被缓存在队列中，然后就会request下一个item，不必等待至被之后的stage消费。这样，通过publishOn方法，我们就有了两个并行的reactive stream。</p></li></ul><p id="0d0ae26d-d159-4171-95c5-90393e9a4865" class="">
+</p><ul id="76fd3dc5-b276-43e4-b02f-79211652e17e" class="bulleted-list"><li><strong><code>subscribeOn</code></strong>
+没看明白，详细区别看这个链接<figure id="3205c8b4-59cd-481d-83ac-e2dab415556e"><a href="https://www.woolha.com/tutorials/project-reactor-publishon-vs-subscribeon-difference" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title"></div></div><div class="bookmark-href"><img src="https://www.woolha.com/favicon.ico" class="icon bookmark-icon"/>https://www.woolha.com/tutorials/project-reactor-publishon-vs-subscribeon-difference</div></div></a></figure></li></ul><p id="99086edb-1eae-4255-a88f-26040cf311d9" class="">
+</p><ul id="fdab70fe-91d9-4b91-9452-966d79c5a444" class="bulleted-list"><li><strong>parallel()</strong><p id="cf1bde33-15ab-45ba-a33d-b0ededa8afbd" class="">可以开启并行，由不同的worker并行执行，不能保证item的顺序执行。</p></li></ul><p id="a7890e43-8073-44e9-8691-06468f7885b1" class="">
+</p><h3 id="29d05241-ef92-4961-a206-c107f09db422" class="">3.Scheduler</h3><p id="325326f4-d56b-4835-aed1-539668d297fa" class="">scheduler是一个reactor中定义的接口，其接口定义如下：</p><p id="0454de7a-051f-44e6-a4b9-8da2a0a85b2b" class="">
+</p><figure id="42c425e4-0237-49e9-b4d0-331eacb36493" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%204.png"><img style="width:1318px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%204.png"/></a></figure><p id="919bd1f8-a9f2-44a2-8992-65f5c2538fba" class="">scheduler主要包括两个方法：</p><ul id="88205666-0a86-4ddf-b12d-73330f4f881d" class="bulleted-list"><li>schedule(Runnable r)：此方法可以用来调度一个runnable方法</li></ul><ul id="c219854d-7d59-4f7b-ad33-c1f74b43de33" class="bulleted-list"><li>createWorker：此方法可以用来创建一个worker对象</li></ul><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="ef0d2e21-1470-450d-b1fa-0a11dd1ff791"><div style="font-size:1.5em"><span class="icon">👉</span></div><div style="width:100%"><strong>scheduler与worker的主要区别是</strong>：worker是线程或资源的特有抽象，而scheduler则是一组worker，即 worker pool。</div></figure><p id="d302b926-2bb4-48b0-a63c-a1a6dd958bf6" class="">
+</p><p id="dee5173d-ab6a-4df4-8257-057c9f3ca8b4" class="">reactor提供了scheduler的三个默认实现：</p><ul id="a46edd0a-f93d-4468-9fcf-85ba1e7f20ac" class="bulleted-list"><li>SingleScheduler   只有一个worker的scheduler</li></ul><ul id="ae67fdd9-4604-4ddd-908b-3b0accde7249" class="bulleted-list"><li>ParallelScheduler   拥有与cpu线程数量相同的worker pool</li></ul><ul id="db690106-aed5-46a0-ab55-0826700cc532" class="bulleted-list"><li>ElasticScheduler   可以动态创建worker的worker pool，适用于io密集耗时长的任务</li></ul><p id="d4d364cc-96a1-45f0-8598-415a060f997a" class="">
+</p><p id="f1133645-2d4d-44e2-b4d6-839301840283" class="">通过Schedulars的几个静态方法，可以直接获取Schedular</p><ul id="68676842-2bf6-4fac-a61d-74da4b741288" class="bulleted-list"><li>immediate()   表示就在当前线程中继续执行   </li></ul><ul id="07166c90-e4fc-4b50-9035-594d55f855d9" class="bulleted-list"><li>single()          只有一个worker线程的 schedulat</li></ul><ul id="b18c7274-60b0-44cf-ac0a-1c556f8d53d7" class="bulleted-list"><li>newSingle()   会为每个请求分配一个新的worker线程</li></ul><ul id="d3b7f715-9b15-49d9-82d7-bc78ae534145" class="bulleted-list"><li><del>elastic() </del>         无界线程池，不再推荐使用</li></ul><ul id="f2fe2660-23a7-4279-9e6d-9772ae059851" class="bulleted-list"><li>boundedElastic()   有界的线程池，最大数量为CPU cores * 10，可复用空闲线程，线程空闲60s后就会自动死亡，释放资源。适合IO类阻塞操作，它可以为阻塞任务提供自己的线程，这样它就不会占用其他资源，并且不会给系统造成太大的压力。</li></ul><ul id="447e6e57-0445-4c43-8374-f01f0f39e413" class="bulleted-list"><li>parallel()       固定数量的线程池，默认与cpu数量相等，适合做cpu密集型计算</li></ul><h3 id="51a59766-51dd-42ae-9ba8-a4688edf8e1a" class="">4.Reactor Context</h3><p id="38b7d3d8-ac88-4c59-865e-ae268ff49fa1" class="">// todo</p><p id="786857ba-781b-4815-aa5b-047f404b9689" class="">
+</p><h3 id="9c2e5113-76dc-47f9-ae8a-886b5277a1c4" class="">5.api图解的解释</h3><p id="f9def457-145a-4ad2-96dc-eb83bbaaae68" class="">
+</p><figure id="61fde440-4792-4059-8803-258821229a57" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%205.png"><img style="width:1880px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%205.png"/></a></figure><p id="ce693009-a313-40c6-9f25-b45aa7a179d0" class="">
+</p><h2 id="bd969103-c305-44db-98c6-476b905794b1" class="">在Spring Boot中响应式编程</h2><p id="1816d63e-6df6-4a6a-b199-c1efdaed853c" class="">
+</p><p id="804987c0-3bb8-481b-bcf6-8c0a1b25d340" class="">Spring MVC的线程模型：</p><p id="4a23017a-ebc3-40fe-addd-fb735f715699" class="">
+</p><figure id="1ae76648-e11d-4cb3-9564-92a9762ee22f" class="image"><a href="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%206.png"><img style="width:1150px" src="%E4%BB%8EJava8%20Stream%20%E5%88%B0%20Reactive%20af04190eea844ec1b51a8d8b6add762b/Untitled%206.png"/></a></figure><p id="9cf0d797-031a-4848-90d8-fff432e71b9b" class="">
+</p><p id="f1cf9017-6473-4655-b9cc-be49367583aa" class="">Spring WebFlux的线程模型：</p><p id="2b13d224-b28a-4a0f-b518-016133364645" class="">
+</p></li></ol></div></article></body></html>
